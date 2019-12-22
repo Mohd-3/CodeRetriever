@@ -14,7 +14,7 @@ A simple tool to download source code of [SPOJ](https://www.spoj.com) submission
     * If you choose to separate gym and regular contests, there will be `/codeforces/handle/gym` and `/codeforces/handle/regular`
     * If you choose to separate each contest in a different folder, a folder with contest's ID will be created for the submissions
 
-Example paths:
+    Example paths:
     * Separated gym/regular and separated folders for contests: `/codeforces/handle/regular(or gym)/1266/A.cpp` 
     * Separated gym/regular but no separated folders for each contest: `/codeforces/handle/regular(or gym)/1266A.cpp` 
     * Not separated gym/regular but separated folders for each contest: `/codeforces/handle/1266/A.cpp` 
