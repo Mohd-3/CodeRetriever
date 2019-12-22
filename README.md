@@ -1,6 +1,6 @@
 # Code Retriever
 
-A simple tool to download source code of [SPOJ](https://www.spoj.com) submissions and [Codeforces](https://www.codeforces.com) submissions including both regular and gym contests submissions.
+A simple tool to download source code of [SPOJ](https://www.spoj.com) and [Codeforces](https://www.codeforces.com) submissions including both regular and gym contests.
 
 ## Features
 
