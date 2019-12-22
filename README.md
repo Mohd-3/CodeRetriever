@@ -62,7 +62,8 @@ cd CodeRetriever
 python3 main.py
 ```
 
-If you want to use this in your existing project, copy `retriever.py` to your project's directory and use it as the following:
+
+Alternatively, If you want to use this in your existing project, copy `retriever.py` to your project's directory and use it as the following:
 
 ```python
 from retriever import Retriever
