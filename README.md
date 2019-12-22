@@ -29,7 +29,7 @@ Below is a list of requirements and dependencies
 * [Python3](https://www.python.org) to run the tool
 * Clone the repository:
 ```
-git clone
+git clone https://github.com/Mohd-3/CodeRetriever.git
 ```
 
 ### Dependencies
