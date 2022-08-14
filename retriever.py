@@ -340,7 +340,7 @@ class Retriever:
             except Exception as e:
                 if self.verbose:
                     print('Exception occured:\n{}'.format(e.get_message()))
-                    print('Skipped SubmissionId = {}. Please Download it manually\n'.format(submission.get_id()))
+                self.errors.append(submission.get_problem())
 
     def get_spoj_submissions(self):
         page = self.req.get('https://www.spoj.com/myaccount')
