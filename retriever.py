@@ -1,7 +1,7 @@
 from getpass import getpass
 import os, time, requests, sys, traceback
 from bs4 import BeautifulSoup as bs
-
+from datetime import datetime
 
 class ErrorException(Exception):
 
@@ -64,8 +64,10 @@ class Submission:
             self.site = site
             self.contest_id = raw_data['contestId']
             self.submission_id = raw_data['id']
+            self.creation_time = raw_data['creationTimeSeconds']
             self.problem_index = raw_data['problem']['index']
             self.language = raw_data['programmingLanguage']
+            self.verdict = raw_data['verdict']
             self.problem = '{}{}'.format(self.contest_id, self.problem_index)
             self.contest_type = 'gym' if gym else 'contest'
             self.path = os.path.join('codeforces', handle)
@@ -92,13 +94,19 @@ class Submission:
 
     def get_id(self):
         return self.submission_id
-   
+
+    def get_creation_time(self):
+        return datetime.fromtimestamp(self.creation_time)
+
     def get_contest(self):
         if self.site == 'codeforces':
             return self.contest_id
     
     def get_language(self):
         return self.language
+
+    def get_verdict(self):
+        return self.verdict
 
     def get_index(self):
         if self.site == 'codeforces':
@@ -121,7 +129,7 @@ class Submission:
 
     def __str__(self):
         if self.site == 'codeforces':
-            return 'Platform: Codeforces, Submission: {}, Contest: {}, Problem: {}'.format(self.get_id(), self.get_contest(), self.get_index())
+            return 'Platform: Codeforces, Submission: {}, Contest: {}, Problem: {}, Verdict: {}, When: {}'.format(self.get_id(), self.get_contest(), self.get_index(), self.get_verdict(), self.get_creation_time())
         return 'Platform: SPOJ, Submission: {}, Problem: {}'.format(self.get_id(), self.get_problem())
 
 
@@ -169,7 +177,10 @@ class Retriever:
             if self.get_gym and self.cf_password is None:
                 self.cf_password = getpass('Password is needed for gym contests, please enter your password: ')
             if self.split_gym is None:
-                self.split_gym = self.get_input('Separate regular and gym contests in different folders?: [y/n] ')
+                if not self.get_gym:
+                    self.split_gym = False
+                else:
+                    self.split_gym = self.get_input('Separate regular and gym contests in different folders?: [y/n] ')
             if self.folders is None:
                     self.folders = self.get_input('Create folders separately for each contest? [y/n]: ')
         if self.spoj is None:
@@ -312,6 +323,12 @@ class Retriever:
         for submission in submissions:
             try:
                 if submission.get_problem() in self.downloaded or (submission.is_gym() and not self.get_gym) or (not submission.is_gym() and not self.get_regular):
+                    if self.verbose:
+                        print('Already Downloaded for Problem {}, Skipping :{}'.format(submission.get_problem(), submission))
+                    continue
+                if submission.get_verdict().upper() != "OK":
+                    if self.verbose:
+                        print('Verdict : {}, Skipping :{}'.format(submission.get_verdict(), submission))
                     continue
                 if self.verbose:
                     print('Downloading --> {}'.format(submission))
