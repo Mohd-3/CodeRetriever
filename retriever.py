@@ -310,16 +310,21 @@ class Retriever:
             raise ErrorException('Error getting submission info.')
         submissions = (Submission('codeforces', raw_data, raw_data['contestId'] in self.gym_set, self.cf_handle, self.split_gym is False) for raw_data in self.data['result'])
         for submission in submissions:
-            if submission.get_problem() in self.downloaded or (submission.is_gym() and not self.get_gym) or (not submission.is_gym() and not self.get_regular):
-                continue
-            if self.verbose:
-                print('Downloading --> {}'.format(submission))
-            self.get_source_code(submission)
-            if self.result == '':
-                self.errors.append(submission.get_problem())
-                continue
-            self.process_submission(submission)
-    
+            try:
+                if submission.get_problem() in self.downloaded or (submission.is_gym() and not self.get_gym) or (not submission.is_gym() and not self.get_regular):
+                    continue
+                if self.verbose:
+                    print('Downloading --> {}'.format(submission))
+                self.get_source_code(submission)
+                if self.result == '':
+                    self.errors.append(submission.get_problem())
+                    continue
+                self.process_submission(submission)
+            except ErrorException as e:
+                if self.verbose:
+                    print('Exception occured:\n{}'.format(e.get_message()))
+                    print('Skipped SubmissionId = {}. Please Download it manually\n'.format(submission.get_id()))
+
     def get_spoj_submissions(self):
         page = self.req.get('https://www.spoj.com/myaccount')
         soup = bs(page.text, 'html.parser')
