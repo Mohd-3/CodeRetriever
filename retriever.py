@@ -320,7 +320,7 @@ class Retriever:
                     self.errors.append(submission.get_problem())
                     continue
                 self.process_submission(submission)
-            except ErrorException as e:
+            except Exception as e:
                 if self.verbose:
                     print('Exception occured:\n{}'.format(e.get_message()))
                     print('Skipped SubmissionId = {}. Please Download it manually\n'.format(submission.get_id()))
