@@ -182,7 +182,7 @@ class Retriever:
             if self.get_gym is None:
                 self.get_gym = self.get_input('Download gym contests submissions? [y/n]: ')
             if self.get_gym and self.cf_password is None:
-                self.cf_password = getpass('Password is needed for gym contests, please enter your password: ')
+                self.cf_password = getpass('Password is needed for gym contests, please enter password of {} : '.format(self.cf_handle))
             if self.split_gym is None:
                 if not self.get_gym:
                     self.split_gym = False
