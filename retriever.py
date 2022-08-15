@@ -3,6 +3,7 @@ import os, time, requests, sys, traceback
 from bs4 import BeautifulSoup as bs
 from datetime import datetime
 import colorama
+import string
 
 colorama.init()
 
@@ -386,6 +387,8 @@ class Retriever:
             self.result = ''
         else:
             self.result = ret.text.rstrip()
+            printable = set(string.printable)
+            self.result = ''.join(filter(lambda x: x in printable, self.result))
 
     def process_submission(self, submission):
         if self.folders:
