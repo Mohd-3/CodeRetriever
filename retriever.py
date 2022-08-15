@@ -342,6 +342,7 @@ class Retriever:
                     if self.verbose:
                         print('Verdict : {}, Skipping :{}'.format(submission.get_verdict(), submission))
                     continue
+                time.sleep(4)
                 if self.verbose:
                     print('Downloading --> {}'.format(submission))
                 self.get_source_code(submission)
