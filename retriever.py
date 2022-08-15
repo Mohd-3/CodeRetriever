@@ -202,7 +202,7 @@ class Retriever:
         if self.codeforces:
             while self.codeforces_once_more:
                 if self.verbose:
-                    print('Downloading codeforces submissions...')
+                    print('Downloading codeforces submissions for : {}...'.format(self.cf_handle))
                 self.gym_set = set()
                 self.contests_set = set()
                 with requests.Session() as self.req:
@@ -231,11 +231,11 @@ class Retriever:
                                 for error in set(self.errors):
                                     print(error)
                                 print('Run one more time to download them.')
-                            self.codeforces_once_more = self.get_input('Do yo want Run one more time to download them? [y/n]: ')
+                            self.codeforces_once_more = self.get_input('Do yo want run once more time to download them? [y/n]: ')
                         else:
                             self.codeforces_once_more = False
                         if self.verbose:
-                            print('Done downloading codeforces submissions.')
+                            print('Done downloading codeforces submissions for : {}'.format(self.cf_handle))
                     except ErrorException as e:
                         if self.verbose:
                             print('Exception occured:\n{}'.format(e.get_message()))
@@ -352,7 +352,7 @@ class Retriever:
                 self.process_submission(submission)
             except Exception as e:
                 if self.verbose:
-                    print('Exception occured:\n{}'.format(str(e)))
+                    print(COLOR_FAIL + 'Exception occured:\n{}'.format(str(e)) + COLOR_ENDC)
                 self.errors.append(submission.get_problem())
 
     def get_spoj_submissions(self):
