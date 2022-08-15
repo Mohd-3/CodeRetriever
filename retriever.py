@@ -185,7 +185,7 @@ class Retriever:
                 self.cf_password = getpass('Password is needed for gym contests, please enter password of {} : '.format(self.cf_handle))
             if self.split_gym is None:
                 if not self.get_gym:
-                    self.split_gym = False
+                    self.split_gym = True
                 else:
                     self.split_gym = self.get_input('Separate regular and gym contests in different folders?: [y/n] ')
             if self.folders is None:
