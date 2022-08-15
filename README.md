@@ -7,7 +7,7 @@ A simple tool to download source code of [SPOJ](https://www.spoj.com) and [Codef
 * Download all accepted SPOJ submissions (requires spoj user and password)
 * Download all accepted Codeforces submissions of a user (can use any handle)
 * Download all accepted Codeforces gym submissions (requires your codeforces password) 
-* If there are multiple accepted submissions for a problem, the last submission will be downloaded
+* If there are multiple accepted submissions for a problem, the last accepted submission will be downloaded
 * Keeps track of downloaded submissions so everytime you run it only new submissions will get downloaded
 * Downloaded files path for SPOJ submissions will be `/spoj/user/problem_name` (ex: `/spoj/mohd_a/ACODE.cpp`)
 * Downloaded files path for Codeforces will be `/codeforces/handle/` and then depends on what you choose:
