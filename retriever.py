@@ -332,19 +332,22 @@ class Retriever:
         if self.data['status'] != 'OK':
             raise ErrorException('Error getting submission info.')
         submissions = (Submission('codeforces', raw_data, raw_data['contestId'] in self.gym_set, self.cf_handle, self.split_gym is False) for raw_data in self.data['result'])
+        index = 0
+        tot_submissions = len(self.data['result'])
         for submission in submissions:
+            index = index + 1
             try:
                 if submission.get_problem() in self.downloaded or (submission.is_gym() and not self.get_gym) or (not submission.is_gym() and not self.get_regular):
                     if self.verbose:
-                        print('Already Downloaded for Problem {}, Skipping :{}'.format(submission.get_problem(), submission))
+                        print('[{}/{}] Already Downloaded for Problem {}, Skipping :{}'.format(index, tot_submissions, submission.get_problem(), submission))
                     continue
                 if submission.get_verdict().upper() != "OK":
                     if self.verbose:
-                        print('Verdict : {}, Skipping :{}'.format(submission.get_verdict(), submission))
+                        print('[{}/{}] Verdict : {}, Skipping :{}'.format(index, tot_submissions, submission.get_verdict(), submission))
                     continue
                 time.sleep(4)
                 if self.verbose:
-                    print('Downloading --> {}'.format(submission))
+                    print('[{}/{}] Downloading --> {}'.format(index, tot_submissions, submission))
                 self.get_source_code(submission)
                 if self.result == '':
                     print(COLOR_FAIL + 'Source code fetch failed' + COLOR_ENDC)
