@@ -331,6 +331,11 @@ class Retriever:
     def get_submissions(self):
         if self.data['status'] != 'OK':
             raise ErrorException('Error getting submission info.')
+        for raw_data in self.data['result']:
+            try:
+                x = raw_data['contestId']
+            except Exception as e:
+                raw_data['contestId'] = "NA"
         submissions = (Submission('codeforces', raw_data, raw_data['contestId'] in self.gym_set, self.cf_handle, self.split_gym is False) for raw_data in self.data['result'])
         index = 0
         tot_submissions = len(self.data['result'])
