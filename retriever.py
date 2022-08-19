@@ -2,6 +2,13 @@ from getpass import getpass
 import os, time, requests, sys, traceback
 from bs4 import BeautifulSoup as bs
 from datetime import datetime
+import colorama
+import string
+
+colorama.init()
+
+COLOR_FAIL = "\033[91m"
+COLOR_ENDC = "\033[0m"
 
 class ErrorException(Exception):
 
@@ -141,6 +148,7 @@ class Retriever:
         self.cf_handle = cf_handle
         self.cf_password = cf_password
         self.codeforces = codeforces
+        self.codeforces_once_more = True
         self.spoj = spoj
         self.spoj_handle = spoj_handle
         self.spoj_password = spoj_password
@@ -175,10 +183,10 @@ class Retriever:
             if self.get_gym is None:
                 self.get_gym = self.get_input('Download gym contests submissions? [y/n]: ')
             if self.get_gym and self.cf_password is None:
-                self.cf_password = getpass('Password is needed for gym contests, please enter your password: ')
+                self.cf_password = getpass('Password is needed for gym contests, please enter password of {} : '.format(self.cf_handle))
             if self.split_gym is None:
                 if not self.get_gym:
-                    self.split_gym = False
+                    self.split_gym = True
                 else:
                     self.split_gym = self.get_input('Separate regular and gym contests in different folders?: [y/n] ')
             if self.folders is None:
@@ -193,46 +201,50 @@ class Retriever:
             if self.spoj_password is None:
                 self.spoj_password = getpass('Enter your spoj password: ')
         if self.codeforces:
-            if self.verbose:
-                print('Downloading codeforces submissions...')
-            self.gym_set = set()
-            self.contests_set = set()
-            with requests.Session() as self.req:
-                try:
-                    self.get_info()
-                    self.get_downloaded('codeforces', self.cf_handle)
-                    self.errors = []
-                    if self.get_gym and self.gym_set:
-                        if not self.login():
-                            raise ErrorException('Invalid handle/password')
-                        if self.split_gym:
-                            self.check_path(os.path.join(os.path.join('codeforces', self.cf_handle), 'gym'))
-                        else:
-                            self.check_path(os.path.join('codeforces', self.cf_handle))
-                    if self.get_regular and self.contests_set:
-                        if self.split_gym:
-                            self.check_path(os.path.join(os.path.join('codeforces', self.cf_handle), 'normal'))
-                        else:
-                            self.check_path(os.path.join('codeforces', self.cf_handle))
-                    self.data = self.req.get('http://codeforces.com/api/user.status?handle={}'.format(self.cf_handle)).json()
-                    self.get_submissions()
-                    self.set_downloaded('codeforces', self.cf_handle)
-                    if self.errors and self.verbose: 
-                        print("Codeforces submissions for the following problems weren't downloaded:")
-                        for error in set(self.errors):
-                            print(error)
-                        print('Run one more time to download them.')
-                    if self.verbose:
-                        print('Done downloading codeforces submissions.')
-                except ErrorException as e:
-                    if self.verbose:
-                        print('Exception occured:\n{}'.format(e.get_message()))
-                except KeyboardInterrupt:
-                    if self.downloaded:
+            while self.codeforces_once_more:
+                if self.verbose:
+                    print('Downloading codeforces submissions for : {}...'.format(self.cf_handle))
+                self.gym_set = set()
+                self.contests_set = set()
+                with requests.Session() as self.req:
+                    try:
+                        self.get_info()
+                        self.get_downloaded('codeforces', self.cf_handle)
+                        self.errors = []
+                        if self.get_gym and self.gym_set:
+                            if not self.login():
+                                raise ErrorException('Invalid handle/password')
+                            if self.split_gym:
+                                self.check_path(os.path.join(os.path.join('codeforces', self.cf_handle), 'gym'))
+                            else:
+                                self.check_path(os.path.join('codeforces', self.cf_handle))
+                        if self.get_regular and self.contests_set:
+                            if self.split_gym:
+                                self.check_path(os.path.join(os.path.join('codeforces', self.cf_handle), 'normal'))
+                            else:
+                                self.check_path(os.path.join('codeforces', self.cf_handle))
+                        self.data = self.req.get('http://codeforces.com/api/user.status?handle={}'.format(self.cf_handle)).json()
+                        self.get_submissions()
                         self.set_downloaded('codeforces', self.cf_handle)
-                    if self.verbose:
-                        print('Keyboard interrupt (CTRL^C) was pressed, exiting.')
-                    exit(0)
+                        if self.errors:
+                            if self.verbose:
+                                print("Codeforces submissions for the following problems weren't downloaded:")
+                                for error in set(self.errors):
+                                    print(error)
+                            self.codeforces_once_more = self.get_input('Do you want to run one more time to download these {} submissions ? [y/n]: '.format(len(self.errors)))
+                        else:
+                            self.codeforces_once_more = False
+                        if self.verbose:
+                            print('Done downloading codeforces submissions for : {}'.format(self.cf_handle))
+                    except ErrorException as e:
+                        if self.verbose:
+                            print('Exception occured:\n{}'.format(e.get_message()))
+                    except KeyboardInterrupt:
+                        if self.downloaded:
+                            self.set_downloaded('codeforces', self.cf_handle)
+                        if self.verbose:
+                            print('Keyboard interrupt (CTRL^C) was pressed, exiting.')
+                        exit(0)
         if self.spoj:
             if self.verbose:
                 print('Downloading spoj submissions...')
@@ -319,27 +331,37 @@ class Retriever:
     def get_submissions(self):
         if self.data['status'] != 'OK':
             raise ErrorException('Error getting submission info.')
+        for raw_data in self.data['result']:
+            try:
+                x = raw_data['contestId']
+            except Exception as e:
+                raw_data['contestId'] = "NA"
         submissions = (Submission('codeforces', raw_data, raw_data['contestId'] in self.gym_set, self.cf_handle, self.split_gym is False) for raw_data in self.data['result'])
+        index = 0
+        tot_submissions = len(self.data['result'])
         for submission in submissions:
+            index = index + 1
             try:
                 if submission.get_problem() in self.downloaded or (submission.is_gym() and not self.get_gym) or (not submission.is_gym() and not self.get_regular):
                     if self.verbose:
-                        print('Already Downloaded for Problem {}, Skipping :{}'.format(submission.get_problem(), submission))
+                        print('[{}/{}] Already Downloaded for Problem {}, Skipping :{}'.format(index, tot_submissions, submission.get_problem(), submission))
                     continue
                 if submission.get_verdict().upper() != "OK":
                     if self.verbose:
-                        print('Verdict : {}, Skipping :{}'.format(submission.get_verdict(), submission))
+                        print('[{}/{}] Verdict : {}, Skipping :{}'.format(index, tot_submissions, submission.get_verdict(), submission))
                     continue
+                time.sleep(4)
                 if self.verbose:
-                    print('Downloading --> {}'.format(submission))
+                    print('[{}/{}] Downloading --> {}'.format(index, tot_submissions, submission))
                 self.get_source_code(submission)
                 if self.result == '':
+                    print(COLOR_FAIL + 'Source code fetch failed' + COLOR_ENDC)
                     self.errors.append(submission.get_problem())
                     continue
                 self.process_submission(submission)
             except Exception as e:
                 if self.verbose:
-                    print('Exception occured:\n{}'.format(e.get_message()))
+                    print(COLOR_FAIL + 'Exception occured:\n{}'.format(str(e)) + COLOR_ENDC)
                 self.errors.append(submission.get_problem())
 
     def get_spoj_submissions(self):
@@ -374,6 +396,8 @@ class Retriever:
             self.result = ''
         else:
             self.result = ret.text.rstrip()
+            printable = set(string.printable)
+            self.result = ''.join(filter(lambda x: x in printable, self.result))
 
     def process_submission(self, submission):
         if self.folders:
