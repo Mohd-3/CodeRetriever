@@ -231,7 +231,7 @@ class Retriever:
                                 print("Codeforces submissions for the following problems weren't downloaded:")
                                 for error in set(self.errors):
                                     print(error)
-                            self.codeforces_once_more = self.get_input('Do you want to run one more time to download them? [y/n]: ')
+                            self.codeforces_once_more = self.get_input('Do you want to run one more time to download these {} submissions ? [y/n]: '.format(len(self.errors)))
                         else:
                             self.codeforces_once_more = False
                         if self.verbose:
