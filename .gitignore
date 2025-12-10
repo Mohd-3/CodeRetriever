@@ -1,2 +1,7 @@
 __pycache__/
 codeforces/
+*.pyc
+.coverage
+__pycache__/
+env/
+venv/
