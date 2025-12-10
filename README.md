@@ -62,7 +62,12 @@ python main.py
 
 2. Enter the required input
 3. Solve turnstile/captcha when the browser launches
+4. Remember, you **don't** need to enter your username/password
 4. Minimize everything while it downloads all accepted submissions
+
+
+## Known issues
+* SPOJ might take sometime (can be too long) after logging in, a work around is clicking any link on the page (only if it doesn't automatically load in like 5sec)
 
 ## Author
 
